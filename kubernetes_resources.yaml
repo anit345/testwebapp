@@ -1,0 +1,133 @@
+---
+# Source: testwebapp/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: testwebapp
+  labels:
+    helm.sh/chart: testwebapp-0.1.0
+    app.kubernetes.io/name: testwebapp
+    app.kubernetes.io/instance: testwebapp
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: testwebapp/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: testwebapp-db-creds
+data:
+  MYSQL_DB_USER: dGVzdFZhbHVl
+  MYSQL_DB_USER_PASSWORD: dGVzdFZhbHVl
+  MYSQL_DB_HOST: dGVzdFZhbHVl
+---
+# Source: testwebapp/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: testwebapp
+  labels:
+    helm.sh/chart: testwebapp-0.1.0
+    app.kubernetes.io/name: testwebapp
+    app.kubernetes.io/instance: testwebapp
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: testwebapp
+    app.kubernetes.io/instance: testwebapp
+---
+# Source: testwebapp/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testwebapp
+  labels:
+    helm.sh/chart: testwebapp-0.1.0
+    app.kubernetes.io/name: testwebapp
+    app.kubernetes.io/instance: testwebapp
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: testwebapp
+      app.kubernetes.io/instance: testwebapp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: testwebapp
+        app.kubernetes.io/instance: testwebapp
+    spec:
+      serviceAccountName: testwebapp
+      securityContext:
+        {}
+      containers:
+        - name: testwebapp
+          securityContext:
+            {}
+          image: "anitsharma/testwebapp:version1"
+          env:          
+            - name: "MYSQL_DB_HOST"
+              valueFrom:
+                secretKeyRef:
+                  key:  MYSQL_DB_HOST
+                  name: testwebapp-db-creds
+            - name: "MYSQL_DB_USER"
+              valueFrom:
+                secretKeyRef:
+                  key:  MYSQL_DB_USER
+                  name: testwebapp-db-creds
+            - name: "MYSQL_DB_USER_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  key:  MYSQL_DB_USER_PASSWORD
+                  name: testwebapp-db-creds
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /demo/all
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /demo/all
+              port: http
+          resources:
+            limits:
+              cpu: 500m
+              memory: 806Mi
+            requests:
+              cpu: 300m
+              memory: 512Mi
+---
+# Source: testwebapp/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "testwebapp-test-connection"
+  labels:
+    helm.sh/chart: testwebapp-0.1.0
+    app.kubernetes.io/name: testwebapp
+    app.kubernetes.io/instance: testwebapp
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['testwebapp:80']
+  restartPolicy: Never
