@@ -57,5 +57,3 @@ D. Next steps :
     - Create a helm package and store in a centeral helm repository (github-pages / s3 / gcs etc.)
     - Replace Kubernetes secrets with a more secure Secret manager like Hashicorp Vault / google secret manager etc.
     - use a DBaaS for database like RDS, CloudSQL etc.
-
-
