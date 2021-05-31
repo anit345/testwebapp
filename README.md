@@ -23,7 +23,8 @@ A. Debugging the application
         MySQL 5.7 with a blank database named "db_example"
     - Post the changes and a MySQL Connection the app was wroking
 
-B. Dockerising the Application 
+B. Dockerising the Application
+
     - A multistage Dockerfile was written to Build the Docker Image with Base Image as CentOS 7 as requested
     - A base image was created with a non-root user ("application") to run the application.
     - to test the app a MySQL 5.7 container was linked to get a reliable connection to database. the blank database was created for application to use.
@@ -34,6 +35,7 @@ B. Dockerising the Application
     - the Docker Image is pushed to Dockerhub and available at : anitsharma/testwebapp:version1
 
 C. Deploy to Kubernetes:
+
     - Helm was used to create a helm chart for the application
     - templates were modified as per the application requirement 
     - secret was created to pass the environment varuables ( MYSQL_DB_USER, MYSQL_DB_USER_PASSWORD, MYSQL_DB_HOST )
@@ -54,6 +56,7 @@ C. Deploy to Kubernetes:
         - MySQL details need to be updated in values.yaml to get the container working.
 
 D. Next steps :
+
     - Create a helm package and store in a centeral helm repository (github-pages / s3 / gcs etc.)
     - Replace Kubernetes secrets with a more secure Secret manager like Hashicorp Vault / google secret manager etc.
     - use a DBaaS for database like RDS, CloudSQL etc.
